@@ -1,0 +1,146 @@
+---
+title: "IS4300 Final Project"
+author: "Cabot Boyd"
+date: '2022-04-27'
+output: word_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Introduction
+
+  We will be examining a data set found on Github called "Yearly batting records 
+for all major league baseball players." It contains a total of 21,699 records, covering 1,228 players from 1871 to 2007 and only contains players with more 
+than 15 seasons played. 
+
+The data contained in this .csv is various batting related statistics, such as 
+at bats, home runs, stolen bases, and hits by pitch. 
+
+This report will be examining Gary Sheffield's case for making the MLB Hall of
+Fame. We will doing this by comparing his offensive performance to other Hall of
+Famers from the same era.
+
+```{r,echo=FALSE}
+library (tidyverse)
+library (dslabs)
+library (readr)
+urlfile="https://vincentarelbundock.github.io/Rdatasets/csv/plyr/baseball.csv"
+baseball<-read_csv(url(urlfile))
+str(baseball)
+```
+## Visualizations
+
+The first visual is a representation of Gary Sheffield's batting average over
+his career compared to HOFer Ken Griffey Jr., who played over the same span.
+
+Figure 1
+```{r,echo=FALSE}
+# We need to compare a few offensive stats
+# The first is batting average. Because there is no batting average variable in
+# this data set, we are going to have to create one using the mutate function
+
+avg <- baseball %>% filter(id == "sheffga01" |  id == "griffke02") %>% 
+  mutate(ba = (h)/ab) %>% select(id,year,h,ab,ba)
+# This creates a data frame that filters out the two players we want to examine
+# and create a new column that creates the batting average statistic
+batavg <- avg %>% ggplot() + geom_line(aes(year,ba,color=id),size=1.2) + 
+  labs(title = "Career Batting Averages", 
+       subtitle = "Ken Griffey Jr. v. Gary Sheffield", x = "Year", 
+       y = "Batting Average") + 
+  scale_colour_discrete(name = "Players",labels = c("Griffey Jr.","Sheffield")) +
+  geom_hline(yintercept = 0.25) + 
+  geom_text(aes(1999,0.245),label = "League Average",size = 4)
+batavg
+```
+
+Next, we will look at another HOFer and teammate on the San Diego Padres, Tony
+Gwynn, and compare their home run numbers.
+
+Figure 2
+```{r,echo=FALSE}
+# Now we will compare Sheffield's home run numbers to another HOFer and teammate,
+# Tony Gwynn. 20+ home runs in a season would be considered elite.
+
+hits <- baseball %>% filter(id == "sheffga01" | id == "gwynnto01") %>% 
+  select(id,year,h,X2b,X3b,hr)
+# This creates a data frame that filters out just the two players we want to 
+# examine
+homeruns <- ggplot(hits,aes(fill=id, y=hr, x=year)) + 
+  geom_bar(position="identity", stat = "identity", alpha = 0.6) + 
+  labs(title = "Career Home Runs", subtitle = "Gary Sheffield v. Tony Gwynn", 
+       x = "Year", y = "Homeruns") + geom_hline(yintercept = 20) +
+  geom_text(aes(1985,22),label = "Elite Level",size = 4)
+homeruns
+```
+
+Finally we will compare Sheffield's on base plus slugging percent, or OPS,
+compared to another Hall of Fame Inductee who played in that era, Rickey
+Henderson.
+
+Figure 3
+```{r,echo=FALSE}
+# Finally we will look at OPS, or On base Plus Slugging, which represents the 
+# offensive production of a player. An elite level for OPS is 0.450+. We will
+# compare Sheffield to HOFer Rickey Henderson.
+
+plus <- baseball %>% mutate(ops=((h+X2b+X3b+hr+bb+hbp)/(ab+hbp+sf))) %>% 
+  filter(id == "sheffga01" | id == "henderi01")
+# We have to establish a data frame that adds a column for OPS and filter for
+# the two players we are looking at
+onbaseps <- plus %>% ggplot() + geom_line(aes(year,ops,color=id),size=1.2) +
+  labs(title = "Career Onbase Plus Slugging", 
+       subtitle = "Gary Sheffield v. Rickey Henderson", x = "Year", y = "OPS") +
+  scale_colour_discrete(name = "Players",labels = c("Henderson","Sheffield")) +
+  geom_hline(yintercept = 0.450) + 
+  geom_text(aes(1985,0.465),label = "Elite Level",size = 4)
+onbaseps
+```
+
+## Analysis
+
+Looking at Sheffield's numbers compared to Hall of Fame Inductees, we can see
+that he has comparable numbers. Sheffield played at or above an elite level on
+the offensive side of the ball throughout his entire career.
+
+```{r,echo=FALSE}
+batavg
+```
+
+Looking at Figure 1, we can see that Sheffield's batting average was comparable
+to Ken Griffey Jr., and well above the league average of 0.250 for several 
+seasons. Sheffield had a career high batting average of .330 and a career average
+of .248, with an injured 1991 season bringing the average down.
+
+```{r,echo=FALSE}
+homeruns
+```
+
+Figure 2 shows that Sheffield had 12 seasons with more than 20 home runs in the
+season. He also had more home runs than Tony Gwynn, a Hall of Famer. Sheffield
+hit 509 homeruns over his career, being 1 of 28 players to hit 500 home runs. 14
+members of the 500 HR club are in the Hall of Fame. Of the other half, 2 players
+are active, and 11 players have been accused or found guilty of using steroids.
+That leaves only Gary Sheffield.
+
+```{r,echo=FALSE}
+onbaseps
+```
+
+Examining Figure 3 tells us a lot. Rickey Henderson did not play all the same
+seasons but they had over a decade of overlap. While Henderson, a Hall of Famer,
+had a more consistent career in terms of OPS, Sheffield still had many seasons
+with OPS at an elite level, with only 3 seasons below .450. Sheffield also ranks
+63rd in career OPS in the MLB, just below Ken Griffey Jr. 
+
+## Conclusion
+
+Gary Sheffield has appeared on the Hall of Fame ballot for eight years, with only
+two more years remaining before he gets left off the ballot and misses out on
+joining the greats in Cooperstown. Using only the above statistics and visuals,
+you can see that Sheffield makes a compelling case for entering the halls of
+Cooperstown. He has comparable numbers to Hall of Famers and has played at an
+elite level on offense for the majority of his career. If I had a vote, Gary
+Sheffield, the 9 time All-Star, 5 time Silver Slugger, and World Champ, would 
+definitely make it into the Hall of Fame.
